@@ -26,6 +26,25 @@ export const UserShow = (props: ShowProps): React.ReactElement => {
         <TextField label="profileImage" source="profileImage" />
         <DateField source="updatedAt" label="Updated At" />
         <TextField label="username" source="username" />
+        <ReferenceManyField
+          reference="Comment"
+          target="userId"
+          label="Comments"
+        >
+          <Datagrid rowClick="show">
+            <TextField label="content" source="content" />
+            <DateField source="createdAt" label="Created At" />
+            <TextField label="ID" source="id" />
+            <TextField label="timestamp" source="timestamp" />
+            <ReferenceField label="Tweet" source="tweet.id" reference="Tweet">
+              <TextField source={TWEET_TITLE_FIELD} />
+            </ReferenceField>
+            <DateField source="updatedAt" label="Updated At" />
+            <ReferenceField label="User" source="user.id" reference="User">
+              <TextField source={USER_TITLE_FIELD} />
+            </ReferenceField>
+          </Datagrid>
+        </ReferenceManyField>
         <ReferenceManyField reference="Like" target="userId" label="Likes">
           <Datagrid rowClick="show">
             <DateField source="createdAt" label="Created At" />

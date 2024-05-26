@@ -22,6 +22,9 @@ import { Tweet } from "./Tweet";
 import { TweetFindManyArgs } from "./TweetFindManyArgs";
 import { TweetWhereUniqueInput } from "./TweetWhereUniqueInput";
 import { TweetUpdateInput } from "./TweetUpdateInput";
+import { CommentFindManyArgs } from "../../comment/base/CommentFindManyArgs";
+import { Comment } from "../../comment/base/Comment";
+import { CommentWhereUniqueInput } from "../../comment/base/CommentWhereUniqueInput";
 import { LikeFindManyArgs } from "../../like/base/LikeFindManyArgs";
 import { Like } from "../../like/base/Like";
 import { LikeWhereUniqueInput } from "../../like/base/LikeWhereUniqueInput";
@@ -181,6 +184,95 @@ export class TweetControllerBase {
     }
   }
 
+  @common.Get("/:id/comments")
+  @ApiNestedQuery(CommentFindManyArgs)
+  async findComments(
+    @common.Req() request: Request,
+    @common.Param() params: TweetWhereUniqueInput
+  ): Promise<Comment[]> {
+    const query = plainToClass(CommentFindManyArgs, request.query);
+    const results = await this.service.findComments(params.id, {
+      ...query,
+      select: {
+        content: true,
+        createdAt: true,
+        id: true,
+        timestamp: true,
+
+        tweet: {
+          select: {
+            id: true,
+          },
+        },
+
+        updatedAt: true,
+
+        user: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/comments")
+  async connectComments(
+    @common.Param() params: TweetWhereUniqueInput,
+    @common.Body() body: CommentWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      comments: {
+        connect: body,
+      },
+    };
+    await this.service.updateTweet({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/comments")
+  async updateComments(
+    @common.Param() params: TweetWhereUniqueInput,
+    @common.Body() body: CommentWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      comments: {
+        set: body,
+      },
+    };
+    await this.service.updateTweet({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/comments")
+  async disconnectComments(
+    @common.Param() params: TweetWhereUniqueInput,
+    @common.Body() body: CommentWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      comments: {
+        disconnect: body,
+      },
+    };
+    await this.service.updateTweet({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
   @common.Get("/:id/likes")
   @ApiNestedQuery(LikeFindManyArgs)
   async findLikes(
@@ -266,5 +358,22 @@ export class TweetControllerBase {
       data,
       select: { id: true },
     });
+  }
+
+  @common.Get("/:id/tweet-block")
+  @swagger.ApiOkResponse({
+    type: String,
+  })
+  @swagger.ApiNotFoundResponse({
+    type: errors.NotFoundException,
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
+  async TweetBlock(
+    @common.Body()
+    body: string
+  ): Promise<string> {
+    return this.service.TweetBlock(body);
   }
 }

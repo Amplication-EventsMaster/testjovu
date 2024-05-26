@@ -20,6 +20,8 @@ import { TweetFindUniqueArgs } from "./TweetFindUniqueArgs";
 import { CreateTweetArgs } from "./CreateTweetArgs";
 import { UpdateTweetArgs } from "./UpdateTweetArgs";
 import { DeleteTweetArgs } from "./DeleteTweetArgs";
+import { CommentFindManyArgs } from "../../comment/base/CommentFindManyArgs";
+import { Comment } from "../../comment/base/Comment";
 import { LikeFindManyArgs } from "../../like/base/LikeFindManyArgs";
 import { Like } from "../../like/base/Like";
 import { User } from "../../user/base/User";
@@ -112,6 +114,20 @@ export class TweetResolverBase {
     }
   }
 
+  @graphql.ResolveField(() => [Comment], { name: "comments" })
+  async findComments(
+    @graphql.Parent() parent: Tweet,
+    @graphql.Args() args: CommentFindManyArgs
+  ): Promise<Comment[]> {
+    const results = await this.service.findComments(parent.id, args);
+
+    if (!results) {
+      return [];
+    }
+
+    return results;
+  }
+
   @graphql.ResolveField(() => [Like], { name: "likes" })
   async findLikes(
     @graphql.Parent() parent: Tweet,
@@ -137,5 +153,13 @@ export class TweetResolverBase {
       return null;
     }
     return result;
+  }
+
+  @graphql.Query(() => String)
+  async TweetBlock(
+    @graphql.Args()
+    args: string
+  ): Promise<string> {
+    return this.service.TweetBlock(args);
   }
 }

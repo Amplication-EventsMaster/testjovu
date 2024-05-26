@@ -20,6 +20,8 @@ import { UserFindUniqueArgs } from "./UserFindUniqueArgs";
 import { CreateUserArgs } from "./CreateUserArgs";
 import { UpdateUserArgs } from "./UpdateUserArgs";
 import { DeleteUserArgs } from "./DeleteUserArgs";
+import { CommentFindManyArgs } from "../../comment/base/CommentFindManyArgs";
+import { Comment } from "../../comment/base/Comment";
 import { LikeFindManyArgs } from "../../like/base/LikeFindManyArgs";
 import { Like } from "../../like/base/Like";
 import { TweetFindManyArgs } from "../../tweet/base/TweetFindManyArgs";
@@ -89,6 +91,20 @@ export class UserResolverBase {
       }
       throw error;
     }
+  }
+
+  @graphql.ResolveField(() => [Comment], { name: "comments" })
+  async findComments(
+    @graphql.Parent() parent: User,
+    @graphql.Args() args: CommentFindManyArgs
+  ): Promise<Comment[]> {
+    const results = await this.service.findComments(parent.id, args);
+
+    if (!results) {
+      return [];
+    }
+
+    return results;
   }
 
   @graphql.ResolveField(() => [Like], { name: "likes" })
