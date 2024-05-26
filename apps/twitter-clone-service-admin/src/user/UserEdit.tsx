@@ -9,6 +9,7 @@ import {
   SelectArrayInput,
 } from "react-admin";
 
+import { CommentTitle } from "../comment/CommentTitle";
 import { LikeTitle } from "../like/LikeTitle";
 import { TweetTitle } from "../tweet/TweetTitle";
 
@@ -17,6 +18,14 @@ export const UserEdit = (props: EditProps): React.ReactElement => {
     <Edit {...props}>
       <SimpleForm>
         <TextInput label="bio" multiline source="bio" />
+        <ReferenceArrayInput
+          source="comments"
+          reference="Comment"
+          parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+          format={(value: any) => value && value.map((v: any) => v.id)}
+        >
+          <SelectArrayInput optionText={CommentTitle} />
+        </ReferenceArrayInput>
         <TextInput label="email" source="email" type="email" />
         <ReferenceArrayInput
           source="likes"

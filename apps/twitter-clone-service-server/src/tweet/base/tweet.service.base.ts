@@ -10,9 +10,11 @@ https://docs.amplication.com/how-to/custom-code
 ------------------------------------------------------------------------------
   */
 import { PrismaService } from "../../prisma/prisma.service";
+
 import {
   Prisma,
   Tweet as PrismaTweet,
+  Comment as PrismaComment,
   Like as PrismaLike,
   User as PrismaUser,
 } from "@prisma/client";
@@ -50,6 +52,17 @@ export class TweetServiceBase {
     return this.prisma.tweet.delete(args);
   }
 
+  async findComments(
+    parentId: string,
+    args: Prisma.CommentFindManyArgs
+  ): Promise<PrismaComment[]> {
+    return this.prisma.tweet
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .comments(args);
+  }
+
   async findLikes(
     parentId: string,
     args: Prisma.LikeFindManyArgs
@@ -67,5 +80,8 @@ export class TweetServiceBase {
         where: { id: parentId },
       })
       .user();
+  }
+  async TweetBlock(args: string): Promise<string> {
+    throw new Error("Not implemented");
   }
 }

@@ -25,6 +25,25 @@ export const TweetShow = (props: ShowProps): React.ReactElement => {
         <ReferenceField label="User" source="user.id" reference="User">
           <TextField source={USER_TITLE_FIELD} />
         </ReferenceField>
+        <ReferenceManyField
+          reference="Comment"
+          target="tweetId"
+          label="Comments"
+        >
+          <Datagrid rowClick="show">
+            <TextField label="content" source="content" />
+            <DateField source="createdAt" label="Created At" />
+            <TextField label="ID" source="id" />
+            <TextField label="timestamp" source="timestamp" />
+            <ReferenceField label="Tweet" source="tweet.id" reference="Tweet">
+              <TextField source={TWEET_TITLE_FIELD} />
+            </ReferenceField>
+            <DateField source="updatedAt" label="Updated At" />
+            <ReferenceField label="User" source="user.id" reference="User">
+              <TextField source={USER_TITLE_FIELD} />
+            </ReferenceField>
+          </Datagrid>
+        </ReferenceManyField>
         <ReferenceManyField reference="Like" target="tweetId" label="Likes">
           <Datagrid rowClick="show">
             <DateField source="createdAt" label="Created At" />
